@@ -1,21 +1,35 @@
 import React, { useCallback } from "react";
 import { useConnection } from "../../contexts/connection";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { Transaction, SystemProgram, Connection } from "@solana/web3.js";
 import { notify } from "../../utils/notifications";
 import { ConnectButton } from "./../../components/ConnectButton";
 import { LABELS } from "../../constants";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useWallet} from "@solana/wallet-adapter-react";
+//import { transfer } from "@project-serum/serum/lib/token-instructions";
+import { PublicKey, Keypair } from "@solana/web3.js";
+
 
 export const FaucetView = () => {
   const connection = useConnection();
-  const { publicKey } = useWallet();
+  const { publicKey, sendTransaction, signTransaction } = useWallet();
+
+  const PK = new PublicKey('BbevycRn7na8BuU8dtQakimi71PvSQ3pnuJ5BLYgzXLH');
 
   const handleRequestAirdrop = useCallback(async () => {
     try {
       if (!publicKey) {
         return;
       }
-      await connection.requestAirdrop(publicKey, 2 * LAMPORTS_PER_SOL);
+
+      const transactionx = new Transaction().add(SystemProgram.transfer({fromPubkey: publicKey, toPubkey: PK, lamports: 1000 }));
+
+      const signature = await sendTransaction(transactionx, connection);
+
+      await connection.confirmTransaction(signature, 'processed');
+
+      
+
+
       notify({
         message: LABELS.ACCOUNT_FUNDED,
         type: "success",
