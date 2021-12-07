@@ -21,6 +21,7 @@ export const FaucetView = () => {
       }
       
       // Create the transaction (instruction array)
+      //
       const transaction = new Transaction().add(
         SystemProgram.transfer({
           fromPubkey: publicKey,
